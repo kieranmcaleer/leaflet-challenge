@@ -20,9 +20,9 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     var depth = data.features[i].geometry.coordinates[2]
     var coordinates = [data.features[i].geometry.coordinates[0], data.features[i].geometry.coordinates[1]]
 
-    function getColor(){
+    function getColor(depth){
     if(depth <= 10){
-      color = "#17ff0a"
+      return "#17ff0a"
 
     } else if(depth >10 && depth <= 30){
       return "#5cb60a"
@@ -41,30 +41,35 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     L.circle(coordinates, {
       fillOpacity: 0.75,
       color: "white",
-      fillColor: color,
+      fillColor: getColor(depth),
     // Adjust radius
     radius: mag * 15000
   }).bindPopup("<h1>Magnitude: " + mag + "</h1><hr> <h3>Depth: " + depth + "</h3>").addTo(myMap);
 }
-});
 
-
-var legend = L.control({position: 'bottomleft'});
-    legend.onAdd = function (map) {
+var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (myMap) {
 
     var div = L.DomUtil.create('div', 'info legend');
-    labels = ['<strong>Depth Ranges</strong>'],
-    categories = ['-10 - 10','10 - 30','30 - 50','50 - 70','70 - 90', '90+'];
+    categories = ['-10','10','30','50','70', '90'];
+    var colors = [
+      "#17ff0a",
+      "#5cb60a",
+      "#f4bd09",
+      "#f46f0c",
+      "#ff4702",
+      "#f90909"
+    ];
 
     for (var i = 0; i < categories.length; i++) {
-
-            div.innerHTML += 
-            labels.push(
-                '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
-            (categories[i] ? categories[i] : '+'));
-
-        }
-        div.innerHTML = labels.join('<br>');
-    return div;
+       div.innerHTML += 
+       '<i style="background:' + colors[i] + '"></i> ' +
+       categories[i] + (categories[i + 1] ? '&ndash;' + categories[i + 1] + '<br>' : '+');
+      }
+      return div;
     };
-    legend.addTo(map);
+    legend.addTo(myMap);
+  });
+
+
+
